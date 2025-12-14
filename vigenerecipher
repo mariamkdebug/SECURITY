@@ -1,0 +1,53 @@
+ALPHABET_SIZE = 26
+
+def char_to_int(char):
+    """تحويل الحرف الإنجليزي الكبير إلى قيمة عددية (0=A, 25=Z)."""
+    return ord(char) - ord('A')
+
+def int_to_char(integer):
+    """تحويل القيمة العددية إلى حرف إنجليزي كبير."""
+    return chr(integer + ord('A'))
+
+def prepare_key_stream(plaintext, key):
+    
+    processed_key = key.upper().replace(" ", "")
+    key_length = len(processed_key)
+    key_stream = ""
+    key_index = 0
+
+    for char in plaintext:
+        if 'A' <= char.upper() <= 'Z':
+            # تكرار حرف المفتاح (K_i) واستخدامه
+            key_stream += processed_key[key_index % key_length]
+            key_index += 1
+        else:
+        
+            key_stream += char 
+            
+    return key_stream.upper()
+
+def vigenere_cipher(text, key, mode='encrypt'):
+
+    text = text.upper()
+    key_stream = prepare_key_stream(text, key)
+    output_text = ""
+    key_stream_index = 0
+    
+    for char in text:
+        if 'A' <= char <= 'Z':
+            P_or_C = char_to_int(char)
+            K_i = char_to_int(key_stream[key_stream_index])
+            
+            if mode == 'encrypt':
+                # C = (P + K_i) mod 26
+                result_int = (P_or_C + K_i) % ALPHABET_SIZE
+            elif mode == 'decrypt':
+                # P = (C - K_i) mod 26
+                # إضافة 26 لضمان أن تكون النتيجة موجبة
+                result_int = (P_or_C - K_i + ALPHABET_SIZE) % ALPHABET_SIZE
+                
+            output_text += int_to_char(result_int)
+            key_stream_index += 1
+       
+
+    return output_text
