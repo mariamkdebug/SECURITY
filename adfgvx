@@ -1,0 +1,92 @@
+# الأبجدية الخاصة بـ ADFGVX
+ADFGVX_CHARS = "ADFGVX"
+
+# دالة لتكوين مصفوفة بوليبيوس (مصفوفة المفتاح الأول)
+def generate_polybius_square(key_square_string):
+    """
+    تنشئ مصفوفة بوليبيوس 6x6 باستخدام مفتاح نصي معطى.
+    """
+    # تهيئة المصفوفة
+    polybius_square = [['' for _ in range(6)] for _ in range(6)]
+    
+    # دمج الأحرف والأرقام بترتيب المفتاح
+    char_list = list(key_square_string.upper().replace('J', 'I'))
+    
+    # التأكد من أن طول المفتاح هو 36 وحذف التكرارات
+    char_set = []
+    for char in char_list:
+        if char not in char_set and 'A' <= char <= 'Z' or '0' <= char <= '9':
+            char_set.append(char)
+    
+    # ملء المصفوفة
+    k = 0
+    for i in range(6):
+        for j in range(6):
+            if k < len(char_set):
+                polybius_square[i][j] = char_set[k]
+                k += 1
+            else:
+                
+                 pass 
+                
+    return polybius_square
+
+
+# دالة إيجاد موقع الحرف في مصفوفة بوليبيوس
+def get_polybius_coordinates(char, polybius_square):
+    char = char.upper().replace('J', 'I') # دمج I و J
+    for i in range(6):
+        for j in range(6):
+            if polybius_square[i][j] == char:
+                return ADFGVX_CHARS[i] + ADFGVX_CHARS[j]
+    return None # إذا لم يتم العثور على الحرف
+
+# دالة التشفير الكاملة لـ ADFGVX
+def adfgvx_encrypt(plaintext, polybius_square, columnar_key):
+
+    cleaned_plaintext = "".join(c for c in plaintext.upper() if c.isalnum())
+    
+    # تحويل النص الأصلي إلى تسلسل من أحرف ADFGVX
+    adfgvx_sequence = ""
+    for char in cleaned_plaintext:
+        coordinates = get_polybius_coordinates(char, polybius_square)
+        if coordinates:
+            adfgvx_sequence += coordinates
+    
+    print(f"\n## 2.1. نتيجة مرحلة الاستبدال (Coordinates):\n{adfgvx_sequence}")
+    
+    # 2. المرحلة الثانية: التبديل العمودي (Columnar Transposition)
+    
+    key_length = len(columnar_key)
+    sequence_length = len(adfgvx_sequence)
+    num_rows = (sequence_length + key_length - 1) // key_length # سقف القسمة
+    
+    # إنشاء مصفوفة التبديل
+    transposition_matrix = [['' for _ in range(key_length)] for _ in range(num_rows)]
+    
+    # ملء المصفوفة صفاً صفاً
+    k = 0
+    for i in range(num_rows):
+        for j in range(key_length):
+            if k < sequence_length:
+                transposition_matrix[i][j] = adfgvx_sequence[k]
+                k += 1
+            else:
+                transposition_matrix[i][j] = 'X' # حرف حشو (Padding)
+
+    # الحصول على ترتيب المفتاح (indices to read from)
+    sorted_key_indices = sorted(range(key_length), key=lambda k: columnar_key[k])
+
+    # قراءة النص المشفر عمودياً بالترتيب الجديد
+    ciphertext = ""
+    for col_index in sorted_key_indices:
+        for i in range(num_rows):
+            ciphertext += transposition_matrix[i][col_index]
+            
+    print("\n## 2.2. مصفوفة التبديل قبل القراءة (لقراءة النص):")
+    print(f"المفتاح:    {' '.join(list(columnar_key.upper()))}")
+    print(f"الترتيب: {' '.join([str(sorted_key_indices.index(i) + 1) for i in range(key_length)])}")
+    for row in transposition_matrix:
+        print(f"الصف:      {' '.join(row)}")
+        
+    return ciphertext
