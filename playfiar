@@ -1,0 +1,69 @@
+def preprocess_plaintext(plaintext):
+   
+    processed_text = ""
+    for char in plaintext.upper():
+        if 'A' <= char <= 'Z':
+            if char == 'J':
+                processed_text += 'I' 
+            else:
+                processed_text += char
+
+  
+    result_pairs = []
+    i = 0
+    while i < len(processed_text):
+        char1 = processed_text[i]
+        
+      
+        if i == len(processed_text) - 1:
+            char2 = 'X' 
+            result_pairs.append(char1 + char2)
+            break
+        
+        char2 = processed_text[i+1]
+        
+    
+        if char1 == char2:
+            result_pairs.append(char1 + 'X')
+            i += 1
+       
+    return result_pairs
+
+
+
+
+    def generate_key_matrix(key):
+    """
+    توليد مصفوفة المفتاح 5x5 لتشفير بلاي فير.
+    """
+    key = key.upper().replace(" ", "")
+    matrix = []
+    
+  
+    alphabet = "ABCDEFGHIKLMNOPQRSTUVWXYZ"
+    
+  
+    chars_to_add = []
+    
+    
+    for char in key:
+        if char not in chars_to_add and char != 'J':
+            chars_to_add.append(char)
+            
+    
+    for char in alphabet:
+        if char not in chars_to_add:
+            chars_to_add.append(char)
+            
+    
+    for i in range(5):
+        row = chars_to_add[i*5 : (i+1)*5]
+        matrix.append(row)
+        
+    return matrix
+
+def print_matrix(matrix):
+    """طباعة المصفوفة بشكل واضح."""
+    print("مصفوفة بلاي فير (5x5):")
+    for row in matrix:
+        print(' '.join(row))
